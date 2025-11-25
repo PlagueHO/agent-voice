@@ -54,7 +54,7 @@ jobs:
     environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || (startsWith(github.ref, 'refs/tags/v') && 'prod' || 'test') }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Set up Node.js 22.x
         uses: actions/setup-node@v6
@@ -129,7 +129,7 @@ jobs:
     if: github.event_name == 'workflow_dispatch' && inputs.environment == 'test' || (github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/v'))
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Set up Node.js 22.x
         uses: actions/setup-node@v6
