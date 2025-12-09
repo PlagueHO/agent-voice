@@ -2,9 +2,7 @@ name: "Copilot Setup Steps"
 
 on:
   workflow_dispatch:
-permissions:
-  id-token: write
-  contents: read
+
 jobs:
   copilot-setup-steps:
     runs-on: ubuntu-latest
