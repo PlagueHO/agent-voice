@@ -426,7 +426,7 @@
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
     "axios": "^1.13.2",
-    "openai": "^6.7.0",
+    "openai": "^6.15.0",
     "ws": "^8.18.0"
   },
   "devDependencies": {
