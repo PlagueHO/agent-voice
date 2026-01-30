@@ -49,17 +49,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Install azd
+      - name: Install Azure Developer CLI
         uses: Azure/setup-azd@v2.2.0
 
-      - name: Authenticate azd (Federated Credentials)
+      - name: Authenticate Azure Developer CLI (Federated Credentials)
         run: |
           azd auth login \
             --client-id "$AZURE_CLIENT_ID" \
             --federated-credential-provider "github" \
             --tenant-id "$AZURE_TENANT_ID"
 
-      - name: Provision Infrastructure
+      - name: Create Azure Developer CLI environment
+        run: |
+          azd env new "$AZURE_ENV_NAME" --location "$AZURE_LOCATION"
+
+      - name: Set azd environment variables
+        run: |
+          azd env set AZURE_PRINCIPAL_ID_TYPE "$AZURE_PRINCIPAL_ID_TYPE"
+
+      - name: Provision Infrastructure using Azure Developer CLI
         id: provision
         continue-on-error: true
         run: azd provision --no-prompt
