@@ -63,7 +63,7 @@ jobs:
         run: |
           azd env new "$AZURE_ENV_NAME" --location "$AZURE_LOCATION"
 
-      - name: Set azd environment variables
+      - name: Set Azure Developer CLI environment variables
         run: |
           azd env set AZURE_PRINCIPAL_ID_TYPE "$AZURE_PRINCIPAL_ID_TYPE"
 
