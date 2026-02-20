@@ -21,10 +21,6 @@
       "type": "stdio",
       "env": {}
     },
-    "azure-verified-module-docs": {
-      "type": "http",
-      "url": "https://gitmcp.io/Azure/bicep-registry-modules"
-    },
     "playwright-test": {
       "type": "stdio",
       "command": "npx",
@@ -32,6 +28,10 @@
         "playwright",
         "run-test-mcp-server"
       ]
+    },
+    "azure-verified-module-docs": {
+      "type": "http",
+      "url": "https://gitmcp.io/Azure/bicep-registry-modules"
     }
   },
   "inputs": []
