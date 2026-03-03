@@ -30,12 +30,20 @@ on:
 jobs:
   validate-infrastructure:
     name: Validate Infrastructure ${{ inputs.ENVIRONMENT }}
-    environment: ${{ inputs.ENVIRONMENT }}
     runs-on: ubuntu-latest
+    environment: ${{ inputs.ENVIRONMENT }}
+    env:
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      AZURE_ENV_NAME: ${{ inputs.AZURE_ENV_NAME }}
+      AZURE_LOCATION: ${{ inputs.AZURE_LOCATION }}
+      AZURE_PRINCIPAL_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_PRINCIPAL_ID_TYPE: 'ServicePrincipal'
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v8
 
       - name: Azure Login
         uses: azure/login@v2
@@ -44,18 +52,15 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
 
-      - name: Validate Bicep
+      - name: Validate
         id: validate-azure-infrastructure
-        uses: azure/arm-deploy@v2
+        uses: azure/bicep-deploy@v2
         with:
-          deploymentMode: Validate
-          deploymentName: ${{ inputs.AZURE_ENV_NAME }}-${{ inputs.AZURE_LOCATION }}-${{ inputs.ENVIRONMENT }}-${{ github.run_number }}
+          type: deployment
+          operation: whatIf
+          name: ${{ inputs.AZURE_ENV_NAME }}-${{inputs.AZURE_LOCATION}}-${{ inputs.ENVIRONMENT }}-${{ github.action_ref }}-${{ github.run_number }}
           scope: subscription
-          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          region: ${{ inputs.AZURE_LOCATION }}
-          template: ./infra/main.bicep
-          parameters: >-
-            environmentName=${{ inputs.AZURE_ENV_NAME }}
-            location=${{ inputs.AZURE_LOCATION }}
-            principalId=${{ secrets.AZURE_CLIENT_ID }}
-            principalIdType=ServicePrincipal
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          location: ${{ inputs.AZURE_LOCATION }}
+          template-file: ./infrastructure_bicep/main.bicep
+          parameters-file: ./infrastructure_bicep/main.bicepparam

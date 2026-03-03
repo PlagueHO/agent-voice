@@ -46,7 +46,14 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Install azd
-        uses: Azure/setup-azd@v2.2.0
+        uses: Azure/setup-azd@v2.2.1
+
+      - name: Restore azd environment state
+        uses: actions/download-artifact@v8
+        continue-on-error: true
+        with:
+          name: azd-env-${{ inputs.AZURE_ENV_NAME }}
+          path: .azure/${{ inputs.AZURE_ENV_NAME }}
 
       - name: Authenticate azd (Federated Credentials)
         run: |

@@ -37,8 +37,14 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  lint_and_publish_bicep:
+    name: Lint and Publish Bicep
+    uses: ./.github/workflows/lint-and-publish-bicep.yml
+
   validate_infrastructure:
     name: Validate infrastructure
+    needs:
+      - lint_and_publish_bicep
     uses: ./.github/workflows/validate-infrastructure.yml
     secrets: inherit
     with:

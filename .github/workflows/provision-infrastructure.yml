@@ -16,6 +16,14 @@ on:
         required: true
         type: string
 
+    outputs:
+      AZURE_AI_SERVICES_ENDPOINT:
+        description: "The Azure AI Services endpoint"
+        value: ${{ jobs.provision-infrastructure.outputs.AZURE_AI_SERVICES_ENDPOINT }}
+      AZURE_STORAGE_ACCOUNT_BLOB_ENDPOINT:
+        description: "The Azure Storage Account blob endpoint"
+        value: ${{ jobs.provision-infrastructure.outputs.AZURE_STORAGE_ACCOUNT_BLOB_ENDPOINT }}
+
     secrets:
       AZURE_TENANT_ID:
         description: "The Azure tenant ID to use for authentication to Azure for deployment"
@@ -30,6 +38,8 @@ on:
 jobs:
   provision-infrastructure:
     name: Provision Infrastructure ${{ inputs.ENVIRONMENT }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.ENVIRONMENT }}
     env:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -38,19 +48,16 @@ jobs:
       AZURE_LOCATION: ${{ inputs.AZURE_LOCATION }}
       AZURE_PRINCIPAL_ID_TYPE: 'ServicePrincipal'
 
-    environment: ${{ inputs.ENVIRONMENT }}
-    runs-on: ubuntu-latest
-
     outputs:
-      AZURE_AI_SERVICES_ENDPOINT: ${{ steps.get_endpoints.outputs.AZURE_AI_SERVICES_ENDPOINT }}
-      AZURE_STORAGE_ACCOUNT_BLOB_ENDPOINT: ${{ steps.get_endpoints.outputs.AZURE_STORAGE_ACCOUNT_BLOB_ENDPOINT }}
+      AZURE_AI_SERVICES_ENDPOINT: ${{ steps.get_infrastructure_outputs.outputs.AZURE_AI_SERVICES_ENDPOINT }}
+      AZURE_STORAGE_ACCOUNT_BLOB_ENDPOINT: ${{ steps.get_infrastructure_outputs.outputs.AZURE_STORAGE_ACCOUNT_BLOB_ENDPOINT }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
       - name: Install Azure Developer CLI
-        uses: Azure/setup-azd@v2.2.0
+        uses: Azure/setup-azd@v2.2.1
 
       - name: Authenticate Azure Developer CLI (Federated Credentials)
         run: |
@@ -85,10 +92,30 @@ jobs:
           echo "::error::Infrastructure provisioning failed. Partial deployment has been cleaned up."
           exit 1
 
+      - name: Save azd environment state
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: azd-env-${{ inputs.AZURE_ENV_NAME }}
+          path: .azure/${{ inputs.AZURE_ENV_NAME }}
+          retention-days: 1
+
       - name: Get Output Endpoints
-        id: get_endpoints
+        id: get_infrastructure_outputs
         run: |
-          AI_ENDPOINT=$(azd env get-values | grep AZURE_AI_SERVICES_ENDPOINT | cut -d'=' -f2- | xargs)
-          STORAGE_ENDPOINT=$(azd env get-values | grep AZURE_STORAGE_ACCOUNT_BLOB_ENDPOINT | cut -d'=' -f2- | xargs)
-          echo "AZURE_AI_SERVICES_ENDPOINT=$AI_ENDPOINT" >> $GITHUB_OUTPUT
-          echo "AZURE_STORAGE_ACCOUNT_BLOB_ENDPOINT=$STORAGE_ENDPOINT" >> $GITHUB_OUTPUT
+          # Get all outputs from azd env get-values and pass them through directly
+          echo "Getting azd environment outputs..."
+          AZD_OUTPUTS=$(azd env get-values)
+
+          # Define all the output variables we want to extract from azd outputs
+          OUTPUT_VARS=(
+            "AZURE_AI_SERVICES_ENDPOINT"
+            "AZURE_STORAGE_ACCOUNT_BLOB_ENDPOINT"
+          )
+
+          # Extract and set each output variable directly from azd outputs
+          for VAR_NAME in "${OUTPUT_VARS[@]}"; do
+            VAR_VALUE=$(echo "$AZD_OUTPUTS" | grep "^${VAR_NAME}=" | cut -d'=' -f2- | xargs)
+            echo "$VAR_NAME=$VAR_VALUE" >> $GITHUB_OUTPUT
+            echo "Set $VAR_NAME=$VAR_VALUE"
+          done
