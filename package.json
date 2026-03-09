@@ -446,7 +446,7 @@
     "chai": "^6.2.2",
     "chai-as-promised": "^8.0.1",
     "clean-webpack-plugin": "^4.0.0",
-    "copy-webpack-plugin": "^13.0.1",
+    "copy-webpack-plugin": "^14.0.0",
     "eslint": "^10.0.3",
     "glob": "^13.0.6",
     "mocha": "^11.7.5",
