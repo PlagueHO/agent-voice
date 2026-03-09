@@ -30,20 +30,19 @@ on:
 jobs:
   validate-infrastructure:
     name: Validate Infrastructure ${{ inputs.ENVIRONMENT }}
-    runs-on: ubuntu-latest
     environment: ${{ inputs.ENVIRONMENT }}
+    runs-on: ubuntu-latest
+
     env:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       AZURE_ENV_NAME: ${{ inputs.AZURE_ENV_NAME }}
       AZURE_LOCATION: ${{ inputs.AZURE_LOCATION }}
-      AZURE_PRINCIPAL_ID: ${{ secrets.AZURE_CLIENT_ID }}
-      AZURE_PRINCIPAL_ID_TYPE: 'ServicePrincipal'
 
     steps:
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v8
+      - name: Checkout Repository
+        uses: actions/checkout@v6
 
       - name: Azure Login
         uses: azure/login@v2
@@ -62,5 +61,5 @@ jobs:
           scope: subscription
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           location: ${{ inputs.AZURE_LOCATION }}
-          template-file: ./infrastructure_bicep/main.bicep
-          parameters-file: ./infrastructure_bicep/main.bicepparam
+          template-file: ./infra/main.bicep
+          parameters-file: ./infra/main.bicepparam

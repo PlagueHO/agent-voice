@@ -40,20 +40,17 @@ jobs:
     name: Provision Infrastructure ${{ inputs.ENVIRONMENT }}
     runs-on: ubuntu-latest
     environment: ${{ inputs.ENVIRONMENT }}
-    permissions:
-      id-token: write
-      contents: read
     env:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       AZURE_ENV_NAME: ${{ inputs.AZURE_ENV_NAME }}
       AZURE_LOCATION: ${{ inputs.AZURE_LOCATION }}
-      AZURE_PRINCIPAL_ID_TYPE: 'ServicePrincipal'
+      AZURE_PRINCIPAL_ID_TYPE: "ServicePrincipal"
 
     outputs:
-      AZURE_AI_SERVICES_ENDPOINT: ${{ steps.get_infrastructure_outputs.outputs.AZURE_AI_SERVICES_ENDPOINT }}
-      AZURE_STORAGE_ACCOUNT_BLOB_ENDPOINT: ${{ steps.get_infrastructure_outputs.outputs.AZURE_STORAGE_ACCOUNT_BLOB_ENDPOINT }}
+      AZURE_AI_SERVICES_ENDPOINT: ${{ steps.get_endpoints.outputs.AZURE_AI_SERVICES_ENDPOINT }}
+      AZURE_STORAGE_ACCOUNT_BLOB_ENDPOINT: ${{ steps.get_endpoints.outputs.AZURE_STORAGE_ACCOUNT_BLOB_ENDPOINT }}
 
     steps:
       - name: Checkout
@@ -83,7 +80,6 @@ jobs:
       - name: Set Azure Developer CLI environment variables
         run: |
           azd env set AZURE_PRINCIPAL_ID_TYPE "$AZURE_PRINCIPAL_ID_TYPE"
-          azd env set AZURE_RESOURCE_GROUP "rg-${AZURE_ENV_NAME}"
 
       - name: Provision Infrastructure using Azure Developer CLI
         id: provision
@@ -95,46 +91,15 @@ jobs:
         run: |
           echo "Provisioning failed. Cleaning up partially deployed infrastructure..."
 
-          # Phase 1: Attempt azd down first
-          echo "Attempting cleanup via azd down..."
+          # Try azd down first
           azd down --no-prompt --purge --force || true
 
-          # Phase 2: Fallback - Delete resource group directly via Azure CLI.
-          # azd down may fail to find resources when provisioning didn't complete,
-          # because the azd environment state was never updated with the deployment.
-          RESOURCE_GROUP="rg-${AZURE_ENV_NAME}"
-          echo "Checking if resource group '${RESOURCE_GROUP}' still exists..."
-          if az group exists --name "$RESOURCE_GROUP" 2>/dev/null | grep -qi "true"; then
-            echo "Resource group '${RESOURCE_GROUP}' still exists. Deleting via Azure CLI..."
-            az group delete --name "$RESOURCE_GROUP" --yes
-            echo "Resource group deleted."
-          else
-            echo "Resource group '${RESOURCE_GROUP}' does not exist or was already deleted."
-          fi
+          # Delete the resource group directly to ensure all resources are removed
+          RESOURCE_GROUP="rg-${{ inputs.AZURE_ENV_NAME }}"
+          echo "Deleting resource group: $RESOURCE_GROUP"
+          az group delete --name "$RESOURCE_GROUP" --yes --no-wait || true
 
-          # Phase 3: Purge any soft-deleted Cognitive Services resources that were in the
-          # resource group. These block future deployments with the same name if not purged.
-          echo "Checking for soft-deleted Cognitive Services resources to purge..."
-          DELETED_ACCOUNTS=$(az cognitiveservices account list-deleted \
-            --subscription "$AZURE_SUBSCRIPTION_ID" \
-            --query "[?contains(id, '${RESOURCE_GROUP}')]" -o json 2>/dev/null || echo "[]")
-
-          if [ "$DELETED_ACCOUNTS" != "[]" ] && [ -n "$DELETED_ACCOUNTS" ]; then
-            echo "$DELETED_ACCOUNTS" | jq -c '.[]' | while read -r account; do
-              ACCOUNT_NAME=$(echo "$account" | jq -r '.name')
-              ACCOUNT_LOCATION=$(echo "$account" | jq -r '.location')
-              ACCOUNT_RG=$(echo "$account" | jq -r '.id' | sed 's|.*/resourceGroups/\([^/]*\)/.*|\1|')
-              echo "Purging soft-deleted Cognitive Services account: $ACCOUNT_NAME (location: $ACCOUNT_LOCATION)"
-              az cognitiveservices account purge \
-                --name "$ACCOUNT_NAME" \
-                --resource-group "$ACCOUNT_RG" \
-                --location "$ACCOUNT_LOCATION" || true
-            done
-          else
-            echo "No soft-deleted Cognitive Services resources found to purge."
-          fi
-
-          echo "Cleanup completed."
+          echo "Cleanup initiated. Resource group deletion is running in the background."
 
       - name: Fail if Provision Failed
         if: steps.provision.outcome == 'failure'
@@ -142,30 +107,11 @@ jobs:
           echo "::error::Infrastructure provisioning failed. Partial deployment has been cleaned up."
           exit 1
 
-      - name: Save azd environment state
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: azd-env-${{ inputs.AZURE_ENV_NAME }}
-          path: .azure/${{ inputs.AZURE_ENV_NAME }}
-          retention-days: 1
-
       - name: Get Output Endpoints
-        id: get_infrastructure_outputs
+        id: get_endpoints
         run: |
-          # Get all outputs from azd env get-values and pass them through directly
-          echo "Getting azd environment outputs..."
-          AZD_OUTPUTS=$(azd env get-values)
+          AZURE_AI_SERVICES_ENDPOINT=$(azd env get-values | grep AZURE_AI_SERVICES_ENDPOINT | cut -d'=' -f2- | xargs)
+          echo "AZURE_AI_SERVICES_ENDPOINT=$AZURE_AI_SERVICES_ENDPOINT" >> $GITHUB_OUTPUT
 
-          # Define all the output variables we want to extract from azd outputs
-          OUTPUT_VARS=(
-            "AZURE_AI_SERVICES_ENDPOINT"
-            "AZURE_STORAGE_ACCOUNT_BLOB_ENDPOINT"
-          )
-
-          # Extract and set each output variable directly from azd outputs
-          for VAR_NAME in "${OUTPUT_VARS[@]}"; do
-            VAR_VALUE=$(echo "$AZD_OUTPUTS" | grep "^${VAR_NAME}=" | cut -d'=' -f2- | xargs)
-            echo "$VAR_NAME=$VAR_VALUE" >> $GITHUB_OUTPUT
-            echo "Set $VAR_NAME=$VAR_VALUE"
-          done
+          AZURE_STORAGE_ACCOUNT_BLOB_ENDPOINT=$(azd env get-values | grep AZURE_STORAGE_ACCOUNT_BLOB_ENDPOINT | cut -d'=' -f2- | xargs)
+          echo "AZURE_STORAGE_ACCOUNT_BLOB_ENDPOINT=$AZURE_STORAGE_ACCOUNT_BLOB_ENDPOINT" >> $GITHUB_OUTPUT

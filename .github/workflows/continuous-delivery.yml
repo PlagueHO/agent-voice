@@ -5,7 +5,7 @@ on:
     branches:
       - main
     tags:
-      - 'v*.*.*'
+      - v*
   workflow_dispatch:
     inputs:
       environment:
@@ -43,8 +43,6 @@ jobs:
 
   validate_infrastructure:
     name: Validate infrastructure
-    needs:
-      - lint_and_publish_bicep
     uses: ./.github/workflows/validate-infrastructure.yml
     secrets: inherit
     with:
