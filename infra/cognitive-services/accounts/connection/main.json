@@ -5,8 +5,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.38.33.27573",
-      "templateHash": "7659506737229092055"
+      "version": "0.40.2.10011",
+      "templateHash": "12620248503948793664"
     },
     "name": "Machine Learning Services Workspaces Connections",
     "description": "This module creates a connection in a Machine Learning Services workspace."
@@ -835,12 +835,12 @@
     "cognitiveServicesAccount": {
       "existing": true,
       "type": "Microsoft.CognitiveServices/accounts",
-      "apiVersion": "2025-04-01-preview",
+      "apiVersion": "2025-10-01-preview",
       "name": "[parameters('accountName')]"
     },
     "connection": {
       "type": "Microsoft.CognitiveServices/accounts/connections",
-      "apiVersion": "2025-04-01-preview",
+      "apiVersion": "2025-10-01-preview",
       "name": "[format('{0}/{1}', parameters('accountName'), parameters('name'))]",
       "properties": "[union(createObject('category', parameters('category'), 'expiryTime', parameters('expiryTime'), 'isSharedToAll', parameters('isSharedToAll'), 'metadata', parameters('metadata'), 'sharedUserList', parameters('sharedUserList'), 'target', parameters('target'), 'value', parameters('value')), parameters('connectionProperties'))]"
     }

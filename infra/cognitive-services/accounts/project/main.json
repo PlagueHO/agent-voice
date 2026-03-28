@@ -5,11 +5,11 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.38.33.27573",
-      "templateHash": "14482875318979497037"
+      "version": "0.41.2.15936",
+      "templateHash": "9636056188496279552"
     },
     "name": "Cognitive Services Project",
-    "description": "This module deploys a Project within a Cognitive Services account.\nIt allows for the creation of a AI Foundry Project with optional managed identities and role assignments.\n"
+    "description": "This module deploys a Project within a Cognitive Services account.\nIt allows for the creation of a Foundry Project with optional managed identities and role assignments.\n"
   },
   "definitions": {
     "_1.aadAuthTypeWorkspaceConnectionPropertyType": {
@@ -741,6 +741,448 @@
         }
       }
     },
+    "_2.agentDeploymentType": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "metadata": {
+            "description": "Required. The name of the agent deployment."
+          }
+        },
+        "deploymentType": {
+          "type": "string",
+          "allowedValues": [
+            "Hosted",
+            "Managed"
+          ],
+          "metadata": {
+            "description": "Required. The type of deployment."
+          }
+        },
+        "displayName": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. The display name of the deployment."
+          }
+        },
+        "description": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. The description of the deployment."
+          }
+        },
+        "deploymentId": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. The unique identifier of the deployment."
+          }
+        },
+        "agents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/_2.versionedAgentReferenceType"
+          },
+          "minLength": 1,
+          "metadata": {
+            "description": "Required. List of agent:version pairs deployed in this deployment."
+          }
+        },
+        "protocols": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/_2.agentProtocolVersionType"
+          },
+          "minLength": 1,
+          "metadata": {
+            "description": "Required. Protocol types and versions exposed by this deployment."
+          }
+        },
+        "minReplicas": {
+          "type": "int",
+          "nullable": true,
+          "minValue": 0,
+          "metadata": {
+            "description": "Optional. The minimum number of replicas. Only applicable when deploymentType is \"Hosted\"."
+          }
+        },
+        "maxReplicas": {
+          "type": "int",
+          "nullable": true,
+          "minValue": 0,
+          "metadata": {
+            "description": "Optional. The maximum number of replicas. Only applicable when deploymentType is \"Hosted\"."
+          }
+        },
+        "tags": {
+          "type": "object",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. Tags for the deployment."
+          }
+        }
+      },
+      "metadata": {
+        "description": "The type for an agent deployment configuration.",
+        "__bicep_imported_from!": {
+          "sourceTemplate": "application/agentDeployment/main.bicep"
+        }
+      }
+    },
+    "_2.agentProtocolVersionType": {
+      "type": "object",
+      "properties": {
+        "protocol": {
+          "type": "string",
+          "allowedValues": [
+            "A2A",
+            "Agent",
+            "Responses"
+          ],
+          "metadata": {
+            "description": "Required. The protocol used by the agent."
+          }
+        },
+        "version": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. The version of the protocol."
+          }
+        }
+      },
+      "metadata": {
+        "description": "The type for an agent protocol version.",
+        "__bicep_imported_from!": {
+          "sourceTemplate": "application/agentDeployment/main.bicep"
+        }
+      }
+    },
+    "_2.versionedAgentReferenceType": {
+      "type": "object",
+      "properties": {
+        "agentId": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. The agent's unique identifier within the organization (subscription)."
+          }
+        },
+        "agentName": {
+          "type": "string",
+          "metadata": {
+            "description": "Required. The agent's name (unique within the project/app)."
+          }
+        },
+        "agentVersion": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. The agent's version (unique for each agent lineage)."
+          }
+        }
+      },
+      "metadata": {
+        "description": "The type for a versioned agent reference.",
+        "__bicep_imported_from!": {
+          "sourceTemplate": "application/agentDeployment/main.bicep"
+        }
+      }
+    },
+    "_3.agentReferenceType": {
+      "type": "object",
+      "properties": {
+        "agentId": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. The agent's unique identifier within the organization (subscription)."
+          }
+        },
+        "agentName": {
+          "type": "string",
+          "metadata": {
+            "description": "Required. The agent's name (unique within the project/app). The agent must already exist in the project."
+          }
+        }
+      },
+      "metadata": {
+        "description": "The type for a reference to an agent within an application.",
+        "__bicep_imported_from!": {
+          "sourceTemplate": "application/main.bicep"
+        }
+      }
+    },
+    "_3.applicationAuthorizationPolicyType": {
+      "type": "object",
+      "properties": {
+        "authorizationScheme": {
+          "type": "string",
+          "allowedValues": [
+            "Channels",
+            "Default",
+            "OrganizationScope"
+          ],
+          "metadata": {
+            "description": "Required. The authorization scheme type."
+          }
+        }
+      },
+      "metadata": {
+        "description": "The type for the authorization policy of an application.",
+        "__bicep_imported_from!": {
+          "sourceTemplate": "application/main.bicep"
+        }
+      }
+    },
+    "_3.applicationTrafficRoutingPolicyType": {
+      "type": "object",
+      "properties": {
+        "protocol": {
+          "type": "string",
+          "allowedValues": [
+            "FixedRatio"
+          ],
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. Methodology used to route traffic to deployments."
+          }
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/_3.trafficRoutingRuleType"
+          },
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. Collection of traffic routing rules."
+          }
+        }
+      },
+      "metadata": {
+        "description": "The type for the traffic routing policy.",
+        "__bicep_imported_from!": {
+          "sourceTemplate": "application/main.bicep"
+        }
+      }
+    },
+    "_3.assignedIdentityType": {
+      "type": "object",
+      "properties": {
+        "clientId": {
+          "type": "string",
+          "metadata": {
+            "description": "Required. The client ID of the identity."
+          }
+        },
+        "kind": {
+          "type": "string",
+          "allowedValues": [
+            "AgentBlueprint",
+            "AgentInstance",
+            "AgenticUser",
+            "Managed",
+            "None"
+          ],
+          "metadata": {
+            "description": "Required. Specifies the kind of Entra identity."
+          }
+        },
+        "principalId": {
+          "type": "string",
+          "metadata": {
+            "description": "Required. The principal ID of the identity."
+          }
+        },
+        "subject": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. The subject of this identity assignment."
+          }
+        },
+        "tenantId": {
+          "type": "string",
+          "metadata": {
+            "description": "Required. The tenant ID of the identity."
+          }
+        },
+        "type": {
+          "type": "string",
+          "allowedValues": [
+            "None",
+            "System",
+            "User"
+          ],
+          "metadata": {
+            "description": "Required. The identity type from a management perspective."
+          }
+        }
+      },
+      "metadata": {
+        "description": "The type for an assigned identity.",
+        "__bicep_imported_from!": {
+          "sourceTemplate": "application/main.bicep"
+        }
+      }
+    },
+    "_3.trafficRoutingRuleType": {
+      "type": "object",
+      "properties": {
+        "deploymentId": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. The unique identifier of the deployment to route traffic to."
+          }
+        },
+        "description": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. A description for this traffic routing rule."
+          }
+        },
+        "ruleId": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. The identifier of this traffic routing rule."
+          }
+        },
+        "trafficPercentage": {
+          "type": "int",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. The percentage of traffic allocated to this instance."
+          }
+        }
+      },
+      "metadata": {
+        "description": "The type for a traffic routing rule.",
+        "__bicep_imported_from!": {
+          "sourceTemplate": "application/main.bicep"
+        }
+      }
+    },
+    "applicationOutputType": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "metadata": {
+            "description": "The name of the application."
+          }
+        },
+        "resourceId": {
+          "type": "string",
+          "metadata": {
+            "description": "The resource ID of the application."
+          }
+        }
+      },
+      "metadata": {
+        "description": "The type for the application output.",
+        "__bicep_imported_from!": {
+          "sourceTemplate": "application/main.bicep"
+        }
+      }
+    },
+    "applicationType": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "metadata": {
+            "description": "Required. The name of the application."
+          }
+        },
+        "displayName": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. The display name of the application."
+          }
+        },
+        "description": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. A description of the application."
+          }
+        },
+        "authorizationPolicy": {
+          "$ref": "#/definitions/_3.applicationAuthorizationPolicyType",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. The authorization policy for the application."
+          }
+        },
+        "agentIdentityBlueprint": {
+          "$ref": "#/definitions/_3.assignedIdentityType",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. The Entra ID agentic blueprint of the application."
+          }
+        },
+        "defaultInstanceIdentity": {
+          "$ref": "#/definitions/_3.assignedIdentityType",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. The default agent instance identity."
+          }
+        },
+        "baseUrl": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. The application's dedicated invocation endpoint."
+          }
+        },
+        "trafficRoutingPolicy": {
+          "$ref": "#/definitions/_3.applicationTrafficRoutingPolicyType",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. The traffic routing policy for the application's deployments."
+          }
+        },
+        "agents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/_3.agentReferenceType"
+          },
+          "metadata": {
+            "description": "Required. The list of agent references in this application. Must contain at least one agent reference with agentName. Agents must exist in the project before the application can be deployed."
+          }
+        },
+        "tags": {
+          "type": "object",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. Tags for the application properties."
+          }
+        },
+        "agentDeployments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/_2.agentDeploymentType"
+          },
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. Agent deployments to create within this application."
+          }
+        }
+      },
+      "metadata": {
+        "description": "The type for an application configuration, used when defining applications for a project.",
+        "__bicep_imported_from!": {
+          "sourceTemplate": "application/main.bicep"
+        }
+      }
+    },
     "connectionType": {
       "type": "object",
       "properties": {
@@ -939,7 +1381,7 @@
       "metadata": {
         "description": "An AVM-aligned type for a diagnostic setting. To be used if both logs & metrics are supported by the resource provider.",
         "__bicep_imported_from!": {
-          "sourceTemplate": "br:mcr.microsoft.com/bicep/avm/utl/types/avm-common-types:0.5.1"
+          "sourceTemplate": "br:mcr.microsoft.com/bicep/avm/utl/types/avm-common-types:0.6.1"
         }
       }
     },
@@ -967,7 +1409,87 @@
       "metadata": {
         "description": "An AVM-aligned type for a managed identity configuration. To be used if both a system-assigned & user-assigned identities are supported by the resource provider.",
         "__bicep_imported_from!": {
-          "sourceTemplate": "br:mcr.microsoft.com/bicep/avm/utl/types/avm-common-types:0.5.1"
+          "sourceTemplate": "br:mcr.microsoft.com/bicep/avm/utl/types/avm-common-types:0.6.1"
+        }
+      }
+    },
+    "projectCapabilityHostOutputType": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "metadata": {
+            "description": "The name of the project capability host."
+          }
+        },
+        "resourceId": {
+          "type": "string",
+          "metadata": {
+            "description": "The resource ID of the project capability host."
+          }
+        }
+      },
+      "metadata": {
+        "description": "The output type for a project-level capability host.",
+        "__bicep_imported_from!": {
+          "sourceTemplate": "capabilityHost/main.bicep"
+        }
+      }
+    },
+    "projectCapabilityHostType": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "metadata": {
+            "description": "Required. Name of the capability host to create."
+          }
+        },
+        "aiServicesConnectionNames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. Array of AI services connection names. These must match connection names defined in the account or project connections."
+          }
+        },
+        "threadStorageConnectionNames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. Array of connection names for thread storage. These must match connection names defined in the account or project connections."
+          }
+        },
+        "vectorStoreConnectionNames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. Array of connection names for vector stores. These must match connection names defined in the account or project connections."
+          }
+        },
+        "storageConnectionNames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. Array of connection names for file storage. These must match connection names defined in the account or project connections."
+          }
+        }
+      },
+      "metadata": {
+        "description": "The type for a project-level capability host configuration.",
+        "__bicep_imported_from!": {
+          "sourceTemplate": "capabilityHost/main.bicep"
         }
       }
     },
@@ -1042,11 +1564,34 @@
       "metadata": {
         "description": "An AVM-aligned type for a role assignment.",
         "__bicep_imported_from!": {
-          "sourceTemplate": "br:mcr.microsoft.com/bicep/avm/utl/types/avm-common-types:0.5.1"
+          "sourceTemplate": "br:mcr.microsoft.com/bicep/avm/utl/types/avm-common-types:0.6.0"
         }
       }
     }
   },
+  "functions": [
+    {
+      "namespace": "__bicep",
+      "members": {
+        "buildConnectionResourceId": {
+          "parameters": [
+            {
+              "type": "string",
+              "name": "accountId"
+            },
+            {
+              "type": "string",
+              "name": "connectionName"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[format('{0}/connections/{1}', parameters('accountId'), parameters('connectionName'))]"
+          }
+        }
+      }
+    }
+  ],
   "parameters": {
     "accountName": {
       "type": "string",
@@ -1120,7 +1665,27 @@
       },
       "defaultValue": [],
       "metadata": {
-        "description": "Optional. Connections to create in the AI Foundry Project."
+        "description": "Optional. Connections to create in the Foundry Project."
+      }
+    },
+    "applications": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/applicationType"
+      },
+      "defaultValue": [],
+      "metadata": {
+        "description": "Optional. Applications to create in the Foundry Project."
+      }
+    },
+    "capabilityHosts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/projectCapabilityHostType"
+      },
+      "defaultValue": [],
+      "metadata": {
+        "description": "Optional. Capability hosts to create in the Foundry Project. These configure per-project storage backends for threads, vectors, and files."
       }
     }
   },
@@ -1171,18 +1736,19 @@
       "Reader": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]",
       "Role Based Access Control Administrator": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'f58310d9-a9f6-439a-9e8d-f62e7b41a168')]",
       "User Access Administrator": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '18d7d88d-d35e-4fb5-a5c3-7773c20a72d9')]"
-    }
+    },
+    "deployableApplications": "[filter(coalesce(parameters('applications'), createArray()), lambda('app', not(empty(coalesce(tryGet(lambdaVariables('app'), 'agents'), createArray())))))]"
   },
   "resources": {
     "parentAccount": {
       "existing": true,
       "type": "Microsoft.CognitiveServices/accounts",
-      "apiVersion": "2025-04-01-preview",
+      "apiVersion": "2025-10-01-preview",
       "name": "[parameters('accountName')]"
     },
     "project": {
       "type": "Microsoft.CognitiveServices/accounts/projects",
-      "apiVersion": "2025-04-01-preview",
+      "apiVersion": "2025-10-01-preview",
       "name": "[format('{0}/{1}', parameters('accountName'), parameters('name'))]",
       "location": "[parameters('location')]",
       "tags": "[coalesce(parameters('tags'), createObject())]",
@@ -1198,7 +1764,7 @@
         "count": "[length(coalesce(parameters('connections'), createArray()))]"
       },
       "type": "Microsoft.CognitiveServices/accounts/projects/connections",
-      "apiVersion": "2025-04-01-preview",
+      "apiVersion": "2025-10-01-preview",
       "name": "[format('{0}/{1}/{2}', parameters('accountName'), parameters('name'), coalesce(parameters('connections'), createArray())[copyIndex()].name)]",
       "properties": "[union(coalesce(parameters('connections'), createArray())[copyIndex()].connectionProperties, createObject('category', coalesce(parameters('connections'), createArray())[copyIndex()].category, 'expiryTime', tryGet(coalesce(parameters('connections'), createArray())[copyIndex()], 'expiryTime'), 'isSharedToAll', tryGet(coalesce(parameters('connections'), createArray())[copyIndex()], 'isSharedToAll'), 'metadata', tryGet(coalesce(parameters('connections'), createArray())[copyIndex()], 'metadata'), 'sharedUserList', tryGet(coalesce(parameters('connections'), createArray())[copyIndex()], 'sharedUserList'), 'target', coalesce(parameters('connections'), createArray())[copyIndex()].target))]",
       "dependsOn": [
@@ -1212,7 +1778,7 @@
       },
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2022-04-01",
-      "scope": "[format('Microsoft.CognitiveServices/accounts/{0}/projects/{1}', parameters('accountName'), parameters('name'))]",
+      "scope": "[resourceId('Microsoft.CognitiveServices/accounts/projects', parameters('accountName'), parameters('name'))]",
       "name": "[coalesce(tryGet(coalesce(variables('formattedRoleAssignments'), createArray())[copyIndex()], 'name'), guid(resourceId('Microsoft.CognitiveServices/accounts/projects', parameters('accountName'), parameters('name')), coalesce(variables('formattedRoleAssignments'), createArray())[copyIndex()].principalId, coalesce(variables('formattedRoleAssignments'), createArray())[copyIndex()].roleDefinitionId))]",
       "properties": {
         "roleDefinitionId": "[coalesce(variables('formattedRoleAssignments'), createArray())[copyIndex()].roleDefinitionId]",
@@ -1234,7 +1800,7 @@
       },
       "type": "Microsoft.Insights/diagnosticSettings",
       "apiVersion": "2021-05-01-preview",
-      "scope": "[format('Microsoft.CognitiveServices/accounts/{0}/projects/{1}', parameters('accountName'), parameters('name'))]",
+      "scope": "[resourceId('Microsoft.CognitiveServices/accounts/projects', parameters('accountName'), parameters('name'))]",
       "name": "[coalesce(tryGet(coalesce(parameters('diagnosticSettings'), createArray())[copyIndex()], 'name'), format('{0}-diagnosticSettings', parameters('name')))]",
       "properties": {
         "copy": [
@@ -1267,6 +1833,901 @@
       "dependsOn": [
         "project"
       ]
+    },
+    "project_capabilityHosts": {
+      "copy": {
+        "name": "project_capabilityHosts",
+        "count": "[length(coalesce(parameters('capabilityHosts'), createArray()))]",
+        "mode": "serial",
+        "batchSize": 1
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "[format('{0}-cph', take(format('{0}-{1}-{2}', parameters('accountName'), parameters('name'), coalesce(parameters('capabilityHosts'), createArray())[copyIndex()].name), 60))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "accountName": {
+            "value": "[parameters('accountName')]"
+          },
+          "projectName": {
+            "value": "[parameters('name')]"
+          },
+          "name": {
+            "value": "[coalesce(parameters('capabilityHosts'), createArray())[copyIndex()].name]"
+          },
+          "aiServicesConnections": "[if(not(equals(tryGet(coalesce(parameters('capabilityHosts'), createArray())[copyIndex()], 'aiServicesConnectionNames'), null())), createObject('value', map(coalesce(parameters('capabilityHosts'), createArray())[copyIndex()].aiServicesConnectionNames, lambda('connName', __bicep.buildConnectionResourceId(resourceId('Microsoft.CognitiveServices/accounts', parameters('accountName')), lambdaVariables('connName'))))), createObject('value', null()))]",
+          "threadStorageConnections": "[if(not(equals(tryGet(coalesce(parameters('capabilityHosts'), createArray())[copyIndex()], 'threadStorageConnectionNames'), null())), createObject('value', map(coalesce(parameters('capabilityHosts'), createArray())[copyIndex()].threadStorageConnectionNames, lambda('connName', __bicep.buildConnectionResourceId(resourceId('Microsoft.CognitiveServices/accounts', parameters('accountName')), lambdaVariables('connName'))))), createObject('value', null()))]",
+          "vectorStoreConnections": "[if(not(equals(tryGet(coalesce(parameters('capabilityHosts'), createArray())[copyIndex()], 'vectorStoreConnectionNames'), null())), createObject('value', map(coalesce(parameters('capabilityHosts'), createArray())[copyIndex()].vectorStoreConnectionNames, lambda('connName', __bicep.buildConnectionResourceId(resourceId('Microsoft.CognitiveServices/accounts', parameters('accountName')), lambdaVariables('connName'))))), createObject('value', null()))]",
+          "storageConnections": "[if(not(equals(tryGet(coalesce(parameters('capabilityHosts'), createArray())[copyIndex()], 'storageConnectionNames'), null())), createObject('value', map(coalesce(parameters('capabilityHosts'), createArray())[copyIndex()].storageConnectionNames, lambda('connName', __bicep.buildConnectionResourceId(resourceId('Microsoft.CognitiveServices/accounts', parameters('accountName')), lambdaVariables('connName'))))), createObject('value', null()))]"
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.41.2.15936",
+              "templateHash": "9026654285514585027"
+            },
+            "name": "Cognitive Services Project Capability Host",
+            "description": "This module creates a capability host in a Cognitive Services project.\r\nProject-level capability hosts configure per-project storage backends for threads, vectors, and files,\r\nallowing different projects to use different storage connections.\r\nSee: https://learn.microsoft.com/en-us/azure/templates/microsoft.cognitiveservices/accounts/projects/capabilityhosts\r\n"
+          },
+          "definitions": {
+            "projectCapabilityHostType": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "metadata": {
+                    "description": "Required. Name of the capability host to create."
+                  }
+                },
+                "aiServicesConnectionNames": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Optional. Array of AI services connection names. These must match connection names defined in the account or project connections."
+                  }
+                },
+                "threadStorageConnectionNames": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Optional. Array of connection names for thread storage. These must match connection names defined in the account or project connections."
+                  }
+                },
+                "vectorStoreConnectionNames": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Optional. Array of connection names for vector stores. These must match connection names defined in the account or project connections."
+                  }
+                },
+                "storageConnectionNames": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Optional. Array of connection names for file storage. These must match connection names defined in the account or project connections."
+                  }
+                }
+              },
+              "metadata": {
+                "__bicep_export!": true,
+                "description": "The type for a project-level capability host configuration."
+              }
+            },
+            "projectCapabilityHostOutputType": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "metadata": {
+                    "description": "The name of the project capability host."
+                  }
+                },
+                "resourceId": {
+                  "type": "string",
+                  "metadata": {
+                    "description": "The resource ID of the project capability host."
+                  }
+                }
+              },
+              "metadata": {
+                "__bicep_export!": true,
+                "description": "The output type for a project-level capability host."
+              }
+            }
+          },
+          "parameters": {
+            "name": {
+              "type": "string",
+              "metadata": {
+                "description": "Required. Name of the capability host to create."
+              }
+            },
+            "accountName": {
+              "type": "string",
+              "metadata": {
+                "description": "Required. The name of the parent Cognitive Services account."
+              }
+            },
+            "projectName": {
+              "type": "string",
+              "metadata": {
+                "description": "Required. The name of the parent Foundry Project."
+              }
+            },
+            "aiServicesConnections": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "nullable": true,
+              "metadata": {
+                "description": "Optional. Array of AI services connection resource IDs. These connections reference AI services available to the project."
+              }
+            },
+            "threadStorageConnections": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "nullable": true,
+              "metadata": {
+                "description": "Optional. Array of connection resource IDs for thread storage. These connections store conversation thread data for agents."
+              }
+            },
+            "vectorStoreConnections": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "nullable": true,
+              "metadata": {
+                "description": "Optional. Array of connection resource IDs for vector stores. These connections store vector embeddings for semantic search."
+              }
+            },
+            "storageConnections": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "nullable": true,
+              "metadata": {
+                "description": "Optional. Array of connection resource IDs for file storage. These connections store files uploaded to agents."
+              }
+            }
+          },
+          "resources": {
+            "parentAccount": {
+              "existing": true,
+              "type": "Microsoft.CognitiveServices/accounts",
+              "apiVersion": "2025-10-01-preview",
+              "name": "[parameters('accountName')]"
+            },
+            "parentProject": {
+              "existing": true,
+              "type": "Microsoft.CognitiveServices/accounts/projects",
+              "apiVersion": "2025-10-01-preview",
+              "name": "[format('{0}/{1}', parameters('accountName'), parameters('projectName'))]"
+            },
+            "capabilityHost": {
+              "type": "Microsoft.CognitiveServices/accounts/projects/capabilityHosts",
+              "apiVersion": "2025-10-01-preview",
+              "name": "[format('{0}/{1}/{2}', parameters('accountName'), parameters('projectName'), parameters('name'))]",
+              "properties": {
+                "aiServicesConnections": "[parameters('aiServicesConnections')]",
+                "threadStorageConnections": "[parameters('threadStorageConnections')]",
+                "vectorStoreConnections": "[parameters('vectorStoreConnections')]",
+                "storageConnections": "[parameters('storageConnections')]"
+              }
+            }
+          },
+          "outputs": {
+            "resourceId": {
+              "type": "string",
+              "metadata": {
+                "description": "The resource ID of the project capability host."
+              },
+              "value": "[resourceId('Microsoft.CognitiveServices/accounts/projects/capabilityHosts', parameters('accountName'), parameters('projectName'), parameters('name'))]"
+            },
+            "name": {
+              "type": "string",
+              "metadata": {
+                "description": "The name of the project capability host."
+              },
+              "value": "[parameters('name')]"
+            },
+            "resourceGroupName": {
+              "type": "string",
+              "metadata": {
+                "description": "The name of the resource group the project capability host was created in."
+              },
+              "value": "[resourceGroup().name]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "project",
+        "project_connections"
+      ]
+    },
+    "project_applications": {
+      "copy": {
+        "name": "project_applications",
+        "count": "[length(variables('deployableApplications'))]",
+        "mode": "serial",
+        "batchSize": 1
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "[format('{0}-app', take(format('{0}-{1}-{2}', parameters('accountName'), parameters('name'), variables('deployableApplications')[copyIndex()].name), 60))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "accountName": {
+            "value": "[parameters('accountName')]"
+          },
+          "projectName": {
+            "value": "[parameters('name')]"
+          },
+          "name": {
+            "value": "[variables('deployableApplications')[copyIndex()].name]"
+          },
+          "displayName": {
+            "value": "[tryGet(variables('deployableApplications')[copyIndex()], 'displayName')]"
+          },
+          "description": {
+            "value": "[tryGet(variables('deployableApplications')[copyIndex()], 'description')]"
+          },
+          "authorizationPolicy": {
+            "value": "[tryGet(variables('deployableApplications')[copyIndex()], 'authorizationPolicy')]"
+          },
+          "agentIdentityBlueprint": {
+            "value": "[tryGet(variables('deployableApplications')[copyIndex()], 'agentIdentityBlueprint')]"
+          },
+          "defaultInstanceIdentity": {
+            "value": "[tryGet(variables('deployableApplications')[copyIndex()], 'defaultInstanceIdentity')]"
+          },
+          "baseUrl": {
+            "value": "[tryGet(variables('deployableApplications')[copyIndex()], 'baseUrl')]"
+          },
+          "trafficRoutingPolicy": {
+            "value": "[tryGet(variables('deployableApplications')[copyIndex()], 'trafficRoutingPolicy')]"
+          },
+          "agents": {
+            "value": "[variables('deployableApplications')[copyIndex()].agents]"
+          },
+          "tags": {
+            "value": "[tryGet(variables('deployableApplications')[copyIndex()], 'tags')]"
+          },
+          "agentDeployments": {
+            "value": "[coalesce(tryGet(variables('deployableApplications')[copyIndex()], 'agentDeployments'), createArray())]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.41.2.15936",
+              "templateHash": "6737514372819333788"
+            },
+            "name": "Cognitive Services Application",
+            "description": "This module creates an application within a Cognitive Services project.\r\nApplications are agentic application instances that can contain agent deployments.\r\nSee: https://learn.microsoft.com/en-us/azure/templates/microsoft.cognitiveservices/accounts/projects/applications\r\n"
+          },
+          "definitions": {
+            "agentReferenceType": {
+              "type": "object",
+              "properties": {
+                "agentId": {
+                  "type": "string",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Optional. The agent's unique identifier within the organization (subscription)."
+                  }
+                },
+                "agentName": {
+                  "type": "string",
+                  "metadata": {
+                    "description": "Required. The agent's name (unique within the project/app). The agent must already exist in the project."
+                  }
+                }
+              },
+              "metadata": {
+                "__bicep_export!": true,
+                "description": "The type for a reference to an agent within an application."
+              }
+            },
+            "applicationAuthorizationPolicyType": {
+              "type": "object",
+              "properties": {
+                "authorizationScheme": {
+                  "type": "string",
+                  "allowedValues": [
+                    "Channels",
+                    "Default",
+                    "OrganizationScope"
+                  ],
+                  "metadata": {
+                    "description": "Required. The authorization scheme type."
+                  }
+                }
+              },
+              "metadata": {
+                "__bicep_export!": true,
+                "description": "The type for the authorization policy of an application."
+              }
+            },
+            "assignedIdentityType": {
+              "type": "object",
+              "properties": {
+                "clientId": {
+                  "type": "string",
+                  "metadata": {
+                    "description": "Required. The client ID of the identity."
+                  }
+                },
+                "kind": {
+                  "type": "string",
+                  "allowedValues": [
+                    "AgentBlueprint",
+                    "AgentInstance",
+                    "AgenticUser",
+                    "Managed",
+                    "None"
+                  ],
+                  "metadata": {
+                    "description": "Required. Specifies the kind of Entra identity."
+                  }
+                },
+                "principalId": {
+                  "type": "string",
+                  "metadata": {
+                    "description": "Required. The principal ID of the identity."
+                  }
+                },
+                "subject": {
+                  "type": "string",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Optional. The subject of this identity assignment."
+                  }
+                },
+                "tenantId": {
+                  "type": "string",
+                  "metadata": {
+                    "description": "Required. The tenant ID of the identity."
+                  }
+                },
+                "type": {
+                  "type": "string",
+                  "allowedValues": [
+                    "None",
+                    "System",
+                    "User"
+                  ],
+                  "metadata": {
+                    "description": "Required. The identity type from a management perspective."
+                  }
+                }
+              },
+              "metadata": {
+                "__bicep_export!": true,
+                "description": "The type for an assigned identity."
+              }
+            },
+            "applicationTrafficRoutingPolicyType": {
+              "type": "object",
+              "properties": {
+                "protocol": {
+                  "type": "string",
+                  "allowedValues": [
+                    "FixedRatio"
+                  ],
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Optional. Methodology used to route traffic to deployments."
+                  }
+                },
+                "rules": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/trafficRoutingRuleType"
+                  },
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Optional. Collection of traffic routing rules."
+                  }
+                }
+              },
+              "metadata": {
+                "__bicep_export!": true,
+                "description": "The type for the traffic routing policy."
+              }
+            },
+            "trafficRoutingRuleType": {
+              "type": "object",
+              "properties": {
+                "deploymentId": {
+                  "type": "string",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Optional. The unique identifier of the deployment to route traffic to."
+                  }
+                },
+                "description": {
+                  "type": "string",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Optional. A description for this traffic routing rule."
+                  }
+                },
+                "ruleId": {
+                  "type": "string",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Optional. The identifier of this traffic routing rule."
+                  }
+                },
+                "trafficPercentage": {
+                  "type": "int",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Optional. The percentage of traffic allocated to this instance."
+                  }
+                }
+              },
+              "metadata": {
+                "__bicep_export!": true,
+                "description": "The type for a traffic routing rule."
+              }
+            },
+            "applicationType": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "metadata": {
+                    "description": "Required. The name of the application."
+                  }
+                },
+                "displayName": {
+                  "type": "string",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Optional. The display name of the application."
+                  }
+                },
+                "description": {
+                  "type": "string",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Optional. A description of the application."
+                  }
+                },
+                "authorizationPolicy": {
+                  "$ref": "#/definitions/applicationAuthorizationPolicyType",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Optional. The authorization policy for the application."
+                  }
+                },
+                "agentIdentityBlueprint": {
+                  "$ref": "#/definitions/assignedIdentityType",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Optional. The Entra ID agentic blueprint of the application."
+                  }
+                },
+                "defaultInstanceIdentity": {
+                  "$ref": "#/definitions/assignedIdentityType",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Optional. The default agent instance identity."
+                  }
+                },
+                "baseUrl": {
+                  "type": "string",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Optional. The application's dedicated invocation endpoint."
+                  }
+                },
+                "trafficRoutingPolicy": {
+                  "$ref": "#/definitions/applicationTrafficRoutingPolicyType",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Optional. The traffic routing policy for the application's deployments."
+                  }
+                },
+                "agents": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/agentReferenceType"
+                  },
+                  "metadata": {
+                    "description": "Required. The list of agent references in this application. Must contain at least one agent reference with agentName. Agents must exist in the project before the application can be deployed."
+                  }
+                },
+                "tags": {
+                  "type": "object",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Optional. Tags for the application properties."
+                  }
+                },
+                "agentDeployments": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/agentDeploymentType"
+                  },
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Optional. Agent deployments to create within this application."
+                  }
+                }
+              },
+              "metadata": {
+                "__bicep_export!": true,
+                "description": "The type for an application configuration, used when defining applications for a project."
+              }
+            },
+            "applicationOutputType": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "metadata": {
+                    "description": "The name of the application."
+                  }
+                },
+                "resourceId": {
+                  "type": "string",
+                  "metadata": {
+                    "description": "The resource ID of the application."
+                  }
+                }
+              },
+              "metadata": {
+                "__bicep_export!": true,
+                "description": "The type for the application output."
+              }
+            },
+            "_1.agentProtocolVersionType": {
+              "type": "object",
+              "properties": {
+                "protocol": {
+                  "type": "string",
+                  "allowedValues": [
+                    "A2A",
+                    "Agent",
+                    "Responses"
+                  ],
+                  "metadata": {
+                    "description": "Required. The protocol used by the agent."
+                  }
+                },
+                "version": {
+                  "type": "string",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Optional. The version of the protocol."
+                  }
+                }
+              },
+              "metadata": {
+                "description": "The type for an agent protocol version.",
+                "__bicep_imported_from!": {
+                  "sourceTemplate": "agentDeployment/main.bicep"
+                }
+              }
+            },
+            "_1.versionedAgentReferenceType": {
+              "type": "object",
+              "properties": {
+                "agentId": {
+                  "type": "string",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Optional. The agent's unique identifier within the organization (subscription)."
+                  }
+                },
+                "agentName": {
+                  "type": "string",
+                  "metadata": {
+                    "description": "Required. The agent's name (unique within the project/app)."
+                  }
+                },
+                "agentVersion": {
+                  "type": "string",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Optional. The agent's version (unique for each agent lineage)."
+                  }
+                }
+              },
+              "metadata": {
+                "description": "The type for a versioned agent reference.",
+                "__bicep_imported_from!": {
+                  "sourceTemplate": "agentDeployment/main.bicep"
+                }
+              }
+            },
+            "agentDeploymentType": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "metadata": {
+                    "description": "Required. The name of the agent deployment."
+                  }
+                },
+                "deploymentType": {
+                  "type": "string",
+                  "allowedValues": [
+                    "Hosted",
+                    "Managed"
+                  ],
+                  "metadata": {
+                    "description": "Required. The type of deployment."
+                  }
+                },
+                "displayName": {
+                  "type": "string",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Optional. The display name of the deployment."
+                  }
+                },
+                "description": {
+                  "type": "string",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Optional. The description of the deployment."
+                  }
+                },
+                "deploymentId": {
+                  "type": "string",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Optional. The unique identifier of the deployment."
+                  }
+                },
+                "agents": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/_1.versionedAgentReferenceType"
+                  },
+                  "minLength": 1,
+                  "metadata": {
+                    "description": "Required. List of agent:version pairs deployed in this deployment."
+                  }
+                },
+                "protocols": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/_1.agentProtocolVersionType"
+                  },
+                  "minLength": 1,
+                  "metadata": {
+                    "description": "Required. Protocol types and versions exposed by this deployment."
+                  }
+                },
+                "minReplicas": {
+                  "type": "int",
+                  "nullable": true,
+                  "minValue": 0,
+                  "metadata": {
+                    "description": "Optional. The minimum number of replicas. Only applicable when deploymentType is \"Hosted\"."
+                  }
+                },
+                "maxReplicas": {
+                  "type": "int",
+                  "nullable": true,
+                  "minValue": 0,
+                  "metadata": {
+                    "description": "Optional. The maximum number of replicas. Only applicable when deploymentType is \"Hosted\"."
+                  }
+                },
+                "tags": {
+                  "type": "object",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Optional. Tags for the deployment."
+                  }
+                }
+              },
+              "metadata": {
+                "description": "The type for an agent deployment configuration.",
+                "__bicep_imported_from!": {
+                  "sourceTemplate": "agentDeployment/main.bicep"
+                }
+              }
+            }
+          },
+          "parameters": {
+            "accountName": {
+              "type": "string",
+              "metadata": {
+                "description": "Required. The name of the parent Cognitive Services account."
+              }
+            },
+            "projectName": {
+              "type": "string",
+              "metadata": {
+                "description": "Required. The name of the parent project."
+              }
+            },
+            "name": {
+              "type": "string",
+              "metadata": {
+                "description": "Required. The name of the application."
+              }
+            },
+            "displayName": {
+              "type": "string",
+              "nullable": true,
+              "metadata": {
+                "description": "Optional. The display name of the application."
+              }
+            },
+            "description": {
+              "type": "string",
+              "nullable": true,
+              "metadata": {
+                "description": "Optional. A description of the application."
+              }
+            },
+            "authorizationPolicy": {
+              "$ref": "#/definitions/applicationAuthorizationPolicyType",
+              "nullable": true,
+              "metadata": {
+                "description": "Optional. The authorization policy for the application."
+              }
+            },
+            "agentIdentityBlueprint": {
+              "$ref": "#/definitions/assignedIdentityType",
+              "nullable": true,
+              "metadata": {
+                "description": "Optional. The Entra ID agentic blueprint of the application."
+              }
+            },
+            "defaultInstanceIdentity": {
+              "$ref": "#/definitions/assignedIdentityType",
+              "nullable": true,
+              "metadata": {
+                "description": "Optional. The default agent instance identity of the application."
+              }
+            },
+            "baseUrl": {
+              "type": "string",
+              "nullable": true,
+              "metadata": {
+                "description": "Optional. The application's dedicated invocation endpoint."
+              }
+            },
+            "trafficRoutingPolicy": {
+              "$ref": "#/definitions/applicationTrafficRoutingPolicyType",
+              "nullable": true,
+              "metadata": {
+                "description": "Optional. The traffic routing policy for the application's deployments."
+              }
+            },
+            "agents": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/agentReferenceType"
+              },
+              "minLength": 1,
+              "metadata": {
+                "description": "Required. The list of agent references in this application. Must contain at least one agent. Agents must exist in the project before the application can be created (created via data-plane APIs or az cognitiveservices agent create)."
+              }
+            },
+            "tags": {
+              "type": "object",
+              "nullable": true,
+              "metadata": {
+                "description": "Optional. Tags for the application properties."
+              }
+            },
+            "agentDeployments": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/agentDeploymentType"
+              },
+              "defaultValue": [],
+              "metadata": {
+                "description": "Optional. Agent deployments to create within this application."
+              }
+            }
+          },
+          "resources": {
+            "parentAccount": {
+              "existing": true,
+              "type": "Microsoft.CognitiveServices/accounts",
+              "apiVersion": "2025-10-01-preview",
+              "name": "[parameters('accountName')]"
+            },
+            "parentProject": {
+              "existing": true,
+              "type": "Microsoft.CognitiveServices/accounts/projects",
+              "apiVersion": "2025-10-01-preview",
+              "name": "[format('{0}/{1}', parameters('accountName'), parameters('projectName'))]"
+            },
+            "application": {
+              "type": "Microsoft.CognitiveServices/accounts/projects/applications",
+              "apiVersion": "2025-10-01-preview",
+              "name": "[format('{0}/{1}/{2}', parameters('accountName'), parameters('projectName'), parameters('name'))]",
+              "properties": "[union(createObject('displayName', parameters('displayName'), 'description', parameters('description'), 'authorizationPolicy', parameters('authorizationPolicy'), 'agents', parameters('agents')), if(not(equals(parameters('agentIdentityBlueprint'), null())), createObject('agentIdentityBlueprint', parameters('agentIdentityBlueprint')), createObject()), if(not(equals(parameters('defaultInstanceIdentity'), null())), createObject('defaultInstanceIdentity', parameters('defaultInstanceIdentity')), createObject()), if(not(equals(parameters('baseUrl'), null())), createObject('baseUrl', parameters('baseUrl')), createObject()), if(not(equals(parameters('trafficRoutingPolicy'), null())), createObject('trafficRoutingPolicy', parameters('trafficRoutingPolicy')), createObject()), if(not(equals(parameters('tags'), null())), createObject('tags', parameters('tags')), createObject()))]"
+            },
+            "application_agentDeployments": {
+              "copy": {
+                "name": "application_agentDeployments",
+                "count": "[length(coalesce(parameters('agentDeployments'), createArray()))]",
+                "mode": "serial",
+                "batchSize": 1
+              },
+              "type": "Microsoft.CognitiveServices/accounts/projects/applications/agentDeployments",
+              "apiVersion": "2025-10-01-preview",
+              "name": "[format('{0}/{1}/{2}/{3}', parameters('accountName'), parameters('projectName'), parameters('name'), coalesce(parameters('agentDeployments'), createArray())[copyIndex()].name)]",
+              "properties": "[union(createObject('deploymentType', coalesce(parameters('agentDeployments'), createArray())[copyIndex()].deploymentType, 'agents', coalesce(parameters('agentDeployments'), createArray())[copyIndex()].agents, 'protocols', coalesce(parameters('agentDeployments'), createArray())[copyIndex()].protocols), if(not(equals(tryGet(coalesce(parameters('agentDeployments'), createArray())[copyIndex()], 'displayName'), null())), createObject('displayName', coalesce(parameters('agentDeployments'), createArray())[copyIndex()].displayName), createObject()), if(not(equals(tryGet(coalesce(parameters('agentDeployments'), createArray())[copyIndex()], 'description'), null())), createObject('description', coalesce(parameters('agentDeployments'), createArray())[copyIndex()].description), createObject()), if(not(equals(tryGet(coalesce(parameters('agentDeployments'), createArray())[copyIndex()], 'deploymentId'), null())), createObject('deploymentId', coalesce(parameters('agentDeployments'), createArray())[copyIndex()].deploymentId), createObject()), if(not(equals(tryGet(coalesce(parameters('agentDeployments'), createArray())[copyIndex()], 'tags'), null())), createObject('tags', coalesce(parameters('agentDeployments'), createArray())[copyIndex()].tags), createObject()), if(equals(coalesce(parameters('agentDeployments'), createArray())[copyIndex()].deploymentType, 'Hosted'), createObject('minReplicas', tryGet(coalesce(parameters('agentDeployments'), createArray())[copyIndex()], 'minReplicas'), 'maxReplicas', tryGet(coalesce(parameters('agentDeployments'), createArray())[copyIndex()], 'maxReplicas')), createObject()))]",
+              "dependsOn": [
+                "application"
+              ]
+            }
+          },
+          "outputs": {
+            "resourceId": {
+              "type": "string",
+              "metadata": {
+                "description": "The resource ID of the application."
+              },
+              "value": "[resourceId('Microsoft.CognitiveServices/accounts/projects/applications', parameters('accountName'), parameters('projectName'), parameters('name'))]"
+            },
+            "name": {
+              "type": "string",
+              "metadata": {
+                "description": "The name of the application."
+              },
+              "value": "[parameters('name')]"
+            },
+            "resourceGroupName": {
+              "type": "string",
+              "metadata": {
+                "description": "The name of the resource group the application was created in."
+              },
+              "value": "[resourceGroup().name]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "project"
+      ]
     }
   },
   "outputs": {
@@ -1290,7 +2751,7 @@
       "metadata": {
         "description": "The principal ID of the system assigned identity."
       },
-      "value": "[tryGet(tryGet(reference('project', '2025-04-01-preview', 'full'), 'identity'), 'principalId')]"
+      "value": "[tryGet(tryGet(reference('project', '2025-10-01-preview', 'full'), 'identity'), 'principalId')]"
     },
     "resourceGroupName": {
       "type": "string",
@@ -1298,6 +2759,38 @@
         "description": "The name of the resource group the Foundry Project created in."
       },
       "value": "[resourceGroup().name]"
+    },
+    "applications": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/applicationOutputType"
+      },
+      "metadata": {
+        "description": "The applications created in the Foundry Project."
+      },
+      "copy": {
+        "count": "[length(variables('deployableApplications'))]",
+        "input": {
+          "name": "[reference(format('project_applications[{0}]', copyIndex())).outputs.name.value]",
+          "resourceId": "[reference(format('project_applications[{0}]', copyIndex())).outputs.resourceId.value]"
+        }
+      }
+    },
+    "capabilityHostsOutput": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/projectCapabilityHostOutputType"
+      },
+      "metadata": {
+        "description": "The capability hosts created in the Foundry Project."
+      },
+      "copy": {
+        "count": "[length(coalesce(parameters('capabilityHosts'), createArray()))]",
+        "input": {
+          "name": "[reference(format('project_capabilityHosts[{0}]', copyIndex())).outputs.name.value]",
+          "resourceId": "[reference(format('project_capabilityHosts[{0}]', copyIndex())).outputs.resourceId.value]"
+        }
+      }
     }
   }
 }

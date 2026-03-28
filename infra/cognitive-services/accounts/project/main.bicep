@@ -1,7 +1,7 @@
 metadata name = 'Cognitive Services Project'
 metadata description = '''
 This module deploys a Project within a Cognitive Services account.
-It allows for the creation of a AI Foundry Project with optional managed identities and role assignments.
+It allows for the creation of a Foundry Project with optional managed identities and role assignments.
 '''
 
 @sys.description('Required. The name of the parent Cognitive Services account.')
@@ -13,7 +13,7 @@ param name string
 @sys.description('Required. The location for the Foundry Project.')
 param location string
 
-import { diagnosticSettingFullType } from 'br/public:avm/utl/types/avm-common-types:0.5.1'
+import { diagnosticSettingFullType } from 'br/public:avm/utl/types/avm-common-types:0.6.1'
 @sys.description('Optional. The diagnostic settings of the service.')
 param diagnosticSettings diagnosticSettingFullType[]?
 
@@ -21,11 +21,11 @@ param diagnosticSettings diagnosticSettingFullType[]?
 @sys.description('Optional. Resource tags for the Foundry Project.')
 param tags object?
 
-import { managedIdentityAllType } from 'br/public:avm/utl/types/avm-common-types:0.5.1'
+import { managedIdentityAllType } from 'br/public:avm/utl/types/avm-common-types:0.6.1'
 @sys.description('Optional. The managed identity definition for this resource.')
 param managedIdentities managedIdentityAllType?
 
-import { roleAssignmentType } from 'br/public:avm/utl/types/avm-common-types:0.5.1'
+import { roleAssignmentType } from 'br/public:avm/utl/types/avm-common-types:0.6.0'
 @sys.description('Optional. Role assignments to apply to the Foundry Project.')
 param roleAssignments roleAssignmentType[]?
 
@@ -36,8 +36,16 @@ param displayName string
 param description string = ''
 
 import { connectionType } from '../connection/main.bicep'
-@sys.description('Optional. Connections to create in the AI Foundry Project.')
+@sys.description('Optional. Connections to create in the Foundry Project.')
 param connections connectionType[] = []
+
+import { applicationType } from './application/main.bicep'
+@sys.description('Optional. Applications to create in the Foundry Project.')
+param applications applicationType[] = []
+
+import { projectCapabilityHostType } from './capabilityHost/main.bicep'
+@sys.description('Optional. Capability hosts to create in the Foundry Project. These configure per-project storage backends for threads, vectors, and files.')
+param capabilityHosts projectCapabilityHostType[] = []
 
 
 var formattedUserAssignedIdentities = reduce(
@@ -205,11 +213,11 @@ var formattedRoleAssignments = [
   })
 ]
 
-resource parentAccount 'Microsoft.CognitiveServices/accounts@2025-04-01-preview' existing = {
+resource parentAccount 'Microsoft.CognitiveServices/accounts@2025-10-01-preview' existing = {
   name: accountName
 }
 
-resource project 'Microsoft.CognitiveServices/accounts/projects@2025-04-01-preview' = {
+resource project 'Microsoft.CognitiveServices/accounts/projects@2025-10-01-preview' = {
   parent: parentAccount
   name: name
   location: location
@@ -221,7 +229,7 @@ resource project 'Microsoft.CognitiveServices/accounts/projects@2025-04-01-previ
   }
 }
 
-resource project_connections 'Microsoft.CognitiveServices/accounts/projects/connections@2025-04-01-preview' = [
+resource project_connections 'Microsoft.CognitiveServices/accounts/projects/connections@2025-10-01-preview' = [
   for (connection, index) in (connections ?? []): {
     parent: project
     name: connection.name
@@ -233,6 +241,62 @@ resource project_connections 'Microsoft.CognitiveServices/accounts/projects/conn
       sharedUserList: connection.?sharedUserList
       target: connection.target
     })
+  }
+]
+
+// Helper function to build connection resource ID from connection name
+func buildConnectionResourceId(accountId string, connectionName string) string =>
+  '${accountId}/connections/${connectionName}'
+
+@batchSize(1)
+module project_capabilityHosts './capabilityHost/main.bicep' = [
+  for (capabilityHost, index) in (capabilityHosts ?? []): {
+    name: '${take('${accountName}-${name}-${capabilityHost.name}', 60)}-cph'
+    dependsOn: [
+      project_connections
+    ]
+    params: {
+      accountName: accountName
+      projectName: project.name
+      name: capabilityHost.name
+      aiServicesConnections: capabilityHost.?aiServicesConnectionNames != null
+        ? map(capabilityHost.aiServicesConnectionNames!, connName => buildConnectionResourceId(parentAccount.id, connName))
+        : null
+      threadStorageConnections: capabilityHost.?threadStorageConnectionNames != null
+        ? map(capabilityHost.threadStorageConnectionNames!, connName => buildConnectionResourceId(parentAccount.id, connName))
+        : null
+      vectorStoreConnections: capabilityHost.?vectorStoreConnectionNames != null
+        ? map(capabilityHost.vectorStoreConnectionNames!, connName => buildConnectionResourceId(parentAccount.id, connName))
+        : null
+      storageConnections: capabilityHost.?storageConnectionNames != null
+        ? map(capabilityHost.storageConnectionNames!, connName => buildConnectionResourceId(parentAccount.id, connName))
+        : null
+    }
+  }
+]
+
+// Filter applications to only those with agents defined (RP requires agents to be non-empty)
+var deployableApplications = filter(applications ?? [], app => !empty(app.?agents ?? []))
+
+@batchSize(1)
+module project_applications './application/main.bicep' = [
+  for (application, index) in deployableApplications: {
+    name: '${take('${accountName}-${name}-${application.name}', 60)}-app'
+    params: {
+      accountName: accountName
+      projectName: project.name
+      name: application.name
+      displayName: application.?displayName
+      description: application.?description
+      authorizationPolicy: application.?authorizationPolicy
+      agentIdentityBlueprint: application.?agentIdentityBlueprint
+      defaultInstanceIdentity: application.?defaultInstanceIdentity
+      baseUrl: application.?baseUrl
+      trafficRoutingPolicy: application.?trafficRoutingPolicy
+      agents: application.agents
+      tags: application.?tags
+      agentDeployments: application.?agentDeployments ?? []
+    }
   }
 ]
 
@@ -292,3 +356,21 @@ output systemAssignedMIPrincipalId string? = project.?identity.?principalId
 
 @sys.description('The name of the resource group the Foundry Project created in.')
 output resourceGroupName string = resourceGroup().name
+
+import { applicationOutputType } from './application/main.bicep'
+@sys.description('The applications created in the Foundry Project.')
+output applications applicationOutputType[] = [
+  for (application, index) in deployableApplications: {
+    name: project_applications[index].outputs.name
+    resourceId: project_applications[index].outputs.resourceId
+  }
+]
+
+import { projectCapabilityHostOutputType } from './capabilityHost/main.bicep'
+@sys.description('The capability hosts created in the Foundry Project.')
+output capabilityHostsOutput projectCapabilityHostOutputType[] = [
+  for (capabilityHost, index) in (capabilityHosts ?? []): {
+    name: project_capabilityHosts[index].outputs.name
+    resourceId: project_capabilityHosts[index].outputs.resourceId
+  }
+]
