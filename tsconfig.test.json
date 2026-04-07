@@ -5,7 +5,8 @@
 		"outDir": "./out",
 		"declaration": false,
 		// TODO: Add 'override' keywords to test mock classes
-		"noImplicitOverride": false
+		"noImplicitOverride": false,
+		"types": ["node", "mocha"]
 	},
 	"include": ["src/**/*.ts", "test/**/*.ts"],
 	"exclude": ["node_modules", "**/*.spec.ts"]
