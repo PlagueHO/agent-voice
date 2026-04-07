@@ -1,3 +1,4 @@
+/// <reference types="node" />
 // Unit test setup - provide VS Code mock via module cache manipulation
 // This runs before any tests and ensures 'vscode' module resolves to our mock
 

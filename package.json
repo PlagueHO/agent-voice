@@ -1,9 +1,6 @@
 {
   "name": "agentvoice",
   "displayName": "Agent Voice",
-  "ts-node": {
-    "project": "tsconfig.test.json"
-  },
   "description": "A conversational coding assistant for VS Code that integrates with GPT-Realtime for voice interaction.",
   "version": "0.1.0",
   "publisher": "NeuralFlow",
