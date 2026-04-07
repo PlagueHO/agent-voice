@@ -7,7 +7,8 @@ const Module = require("module");
 // Load VS Code mock via require so this file remains a CommonJS script
 // (no ES module import declarations) - required for TypeScript 6.0 compatibility
 // where require/NodeJS globals are not available in module-scope files.
-const vscode = require("./vscode-mock") as typeof import("./vscode-mock");
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const vscode = require("./vscode-mock") as Record<string, unknown>;
 
 // Store original _resolveFilename
 const originalResolveFilename = Module._resolveFilename;
