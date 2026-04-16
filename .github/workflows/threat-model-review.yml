@@ -26,7 +26,7 @@ jobs:
 
       - name: Inspect report
         id: report
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const fs = require('fs');
@@ -43,7 +43,7 @@ jobs:
 
       - name: Create issue for open high-risk threats
         if: steps.report.outputs.openHighRiskCount != '0'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         env:
           OPEN_HIGH_RISK_LIST: ${{ steps.report.outputs.openHighRiskList }}
         with:
