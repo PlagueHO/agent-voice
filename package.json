@@ -458,5 +458,8 @@
     "typescript": "^6.0.3",
     "webpack": "^5.106.2",
     "webpack-cli": "^7.0.2"
+  },
+  "overrides": {
+    "serialize-javascript": "^7.0.5"
   }
 }
