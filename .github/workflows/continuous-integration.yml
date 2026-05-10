@@ -150,7 +150,7 @@ jobs:
           category: eslint-security-scan
 
       - name: Run Trivy dependency scan
-        uses: aquasecurity/trivy-action@0.35.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: fs
           format: sarif
@@ -168,7 +168,7 @@ jobs:
 
       - name: Dependency review (pull requests only)
         if: github.event_name == 'pull_request'
-        uses: actions/dependency-review-action@v4
+        uses: actions/dependency-review-action@v5
 
   telemetry-publish:
     name: Publish Quality Gate Telemetry
