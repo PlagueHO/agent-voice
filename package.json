@@ -427,7 +427,7 @@
     "ajv-formats": "^3.0.1",
     "axios": "^1.16.1",
     "openai": "^6.39.0",
-    "ws": "^8.20.1"
+    "ws": "^8.21.0"
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
