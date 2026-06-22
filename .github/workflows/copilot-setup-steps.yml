@@ -22,7 +22,7 @@ jobs:
       HAS_AZURE_CREDENTIALS: ${{ secrets.AZURE_CLIENT_ID != '' && 'true' || 'false' }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set up Node.js
         uses: actions/setup-node@v6
