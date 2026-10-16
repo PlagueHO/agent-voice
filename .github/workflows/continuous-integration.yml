@@ -160,7 +160,7 @@ jobs:
           skip-files: '.git/**,.vscode-test/**,out/**,node_modules/**'
 
       - name: Upload Trivy SARIF
-        if: always()
+        if: always() && hashFiles('trivy-results.sarif') != ''
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-results.sarif
