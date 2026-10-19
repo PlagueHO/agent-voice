@@ -443,7 +443,7 @@
     "@typescript-eslint/parser": "^8.64.0",
     "@vscode/test-cli": "^0.0.15",
     "@vscode/test-electron": "^3.0.0",
-    "chai": "^6.2.2",
+    "chai": "^6.3.0",
     "chai-as-promised": "^8.0.1",
     "clean-webpack-plugin": "^4.0.0",
     "copy-webpack-plugin": "^14.0.0",
